@@ -14,7 +14,9 @@ import hashlib
 import time
 import telapi
 import base64
+import urllib
 import logging
+import traceback
 # Create your views here.
 ACCOUNT_SID = settings.ACCOUNT_SID
 ACCOUNT_TOKEN = settings.ACCOUNT_TOKEN
@@ -40,12 +42,18 @@ class CallerThread(threading.Thread):
         while not self.finished.is_set():
             work = self.queue.get()
             from_number, to_number, url = work
-            list(self.account.calls)
-            self.account.calls.create(from_number=from_number,
-                                      to_number=to_number,
-                                      url=url)
-            logging.error("Called %s, from %s, url: %s", to_number, from_number, url)
-            time.sleep(1)
+            try:
+                self.do_call(from_number, to_number, url)
+            except:
+                logging.error(traceback.format_exc())
+
+    def do_call(self, from_number, to_number, url):
+        list(self.account.calls)
+        self.account.calls.create(from_number=from_number,
+                                  to_number=to_number,
+                                  url=url)
+        logging.error("Called %s, from %s, url: %s", to_number, from_number, url)
+        time.sleep(1)
 
 ct = CallerThread(call_queue)
 ct.start()
@@ -53,18 +61,27 @@ ct.start()
 def robocall(request):
     if request.method == 'POST':
         form = forms.RobocallerForm(request.POST, request.FILES)
-        print form.is_valid()
-        print form.errors
         if form.is_valid():
             sio = StringIO.StringIO(request.FILES['numbers_to_call'].read())
-            url = form.cleaned_data['message']
-            encoded_url = settings.CALLBACK_BASE_URL + '/csvdialer/telml/%s/'
-            encoded_url = encoded_url % base64.encodestring(url).strip()
-            for row in csv.reader(sio, delimiter=',', quotechar='"'):
-                from_number, to_number = row[:2]
-                print from_number, to_number, row[:2]
-                call_queue.put((from_number, to_number, encoded_url))
-            return HttpResponse('Ok')
+            if form.cleaned_data.get('message'):
+                url = form.cleaned_data['message']
+                encoded_url = settings.CALLBACK_BASE_URL + '/csvdialer/telml/play/%s/'
+                encoded_url = encoded_url % url
+                for row in csv.reader(sio, delimiter=',', quotechar='"'):
+                    from_number, to_number = row[:2]
+                    print from_number, to_number, row[:2]
+                    call_queue.put((from_number, to_number, encoded_url))
+                return HttpResponse('Play Ok')
+            elif form.cleaned_data.get('say_message'):
+                msg = form.cleaned_data['say_message']
+                encoded_url = settings.CALLBACK_BASE_URL + '/csvdialer/telml/say/%s/'
+                encoded_url = encoded_url % urllib.quote(msg)
+                for row in csv.reader(sio, delimiter=',', quotechar='"'):
+                    from_number, to_number = row[:2]
+                    print from_number, to_number, row[:2]
+                    call_queue.put((from_number, to_number, encoded_url))
+                return HttpResponse('Say Ok')
+
     form = forms.RobocallerForm()
     return render_to_response('csvdialer/robocall.html',
                               {'form': form},
@@ -72,8 +89,13 @@ def robocall(request):
 
 
 @csrf_exempt
-def telml_call(request, encoded_url):
-    url = base64.decodestring(encoded_url)
+def telml_play(request, encoded_url):
+    url = urllib.unquote(encoded_url)
     msg = '<Response><Play>%s</Play></Response>' % url
     return HttpResponse(msg, 'application/xml')
 
+@csrf_exempt
+def telml_say(request, encoded_url):
+    say = urllib.unquote(encoded_url)
+    msg = '<Response><Say>%s</Say></Response>' % say
+    return HttpResponse(msg, 'application/xml')

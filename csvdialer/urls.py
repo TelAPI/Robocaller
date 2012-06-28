@@ -5,5 +5,6 @@ from csvdialer import views
 urlpatterns = patterns(
     'csvdialer.views',
     url(r'^robocall/$', views.robocall, name='robocall'),
-    url(r'^telml/call/(?P<encoded_url>.*?)/$', views.telml_call, name='telml_call'),
+    url(r'^telml/play/(?P<encoded_url>.*?)/$', views.telml_play, name='telml_play'),
+    url(r'^telml/say/(?P<encoded_url>.*?)/$', views.telml_say, name='telml_say'),
 )
