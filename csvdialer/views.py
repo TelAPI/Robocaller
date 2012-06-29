@@ -67,21 +67,23 @@ def robocall(request):
                 url = form.cleaned_data['message']
                 encoded_url = settings.CALLBACK_BASE_URL + '/csvdialer/telml/play/%s/'
                 encoded_url = encoded_url % url
-                for row in csv.reader(sio, delimiter=',', quotechar='"'):
-                    from_number, to_number = row[:2]
-                    print from_number, to_number, row[:2]
-                    call_queue.put((from_number, to_number, encoded_url))
-                return HttpResponse('Play Ok')
             elif form.cleaned_data.get('say_message'):
-                msg = form.cleaned_data['say_message']
+                msg = form.cleaned_data('say_message')
                 encoded_url = settings.CALLBACK_BASE_URL + '/csvdialer/telml/say/%s/'
                 encoded_url = encoded_url % urllib.quote(msg)
+            else:
+                encoded_url = None
+            if encoded_url:
                 for row in csv.reader(sio, delimiter=',', quotechar='"'):
                     from_number, to_number = row[:2]
+                    if len(row) > 2:
+                        real_message = settings.CALLBACK_BASE_URL + '/csvdialer/telml/play/%s/'
+                        real_message = real_message % row[2]
+                    else:
+                        real_message = encoded_url
                     print from_number, to_number, row[:2]
                     call_queue.put((from_number, to_number, encoded_url))
-                return HttpResponse('Say Ok')
-
+                return HttpResponse('Starting to dial numbers within 5 seconds')
     form = forms.RobocallerForm()
     return render_to_response('csvdialer/robocall.html',
                               {'form': form},
@@ -90,7 +92,7 @@ def robocall(request):
 
 @csrf_exempt
 def telml_play(request, encoded_url):
-    url = urllib.unquote(encoded_url)
+    url = encoded_url
     msg = '<Response><Play>%s</Play></Response>' % url
     return HttpResponse(msg, 'application/xml')
 

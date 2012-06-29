@@ -1,4 +1,5 @@
 # Django settings for robocaller project.
+import os.path
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -61,6 +62,10 @@ STATIC_ROOT = ''
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
+PROJECT_DIR = os.path.dirname(__file__)
+STATIC_DOC_ROOT = os.path.join(PROJECT_DIR, 'assets')
+
+
 
 # URL prefix for admin static files -- CSS, JavaScript and images.
 # Make sure to use a trailing slash.
@@ -102,8 +107,6 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'robocaller.urls'
 
-import os.path
-PROJECT_DIR = os.path.dirname(__file__)
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_DIR, "templates")
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".

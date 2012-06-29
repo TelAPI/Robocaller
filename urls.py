@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import patterns, include, url
+from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -6,6 +7,9 @@ from django.conf.urls.defaults import patterns, include, url
 
 urlpatterns = patterns(
     '',
+    url(r'^assets/(?P<path>.*)$',  # For dev only!
+        'django.views.static.serve',
+        {'document_root': settings.STATIC_DOC_ROOT}),
     url(r'^csvdialer/', include('csvdialer.urls')),
     # Examples:
     # url(r'^$', 'robocaller.views.home', name='home'),
