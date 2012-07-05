@@ -23,6 +23,7 @@ In your project's '''settings.py''', add
 Modify the '''local_settings.py''' and set the following parts to appropriate values:
 
 > ACCOUNT_SID = u'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+>
 > ACCOUNT_TOKEN = u'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 >
 > CALLBACK_BASE_URL = u'http://www.example.com'
@@ -43,6 +44,7 @@ Add '''csvdialer''' to your project's settings.py
 Add the following to your project's '''settings.py''' file:
 
 > ACCOUNT_SID = u'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+>
 > ACCOUNT_TOKEN = u'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 >
 > CALLBACK_BASE_URL = u'http://www.example.com'
