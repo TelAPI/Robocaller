@@ -4,7 +4,7 @@ RoboCaller
 What is it?
 -----------
 
-This is a sample, pluggable application for <a href="http://www.djangoproject.com">, using <a href="http://www.telapi.com">TelAPI</a> for automated
+This is a sample, pluggable application for <a href="http://www.djangoproject.com">Django</a>, using <a href="http://www.telapi.com">TelAPI</a> for automated
 dialing ("robo calling") and playing a MP3 file for the recipient.  It can also play a text-to-speech message.
 
 
